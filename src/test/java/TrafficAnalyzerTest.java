@@ -1,22 +1,25 @@
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.util.Stack;
 
 class TrafficAnalyzerTest {
 
     @Test
     public void testProcessDayCount() throws IOException {
         var trafficAnalyzer = new TrafficAnalyzer("data.txt");
-        trafficAnalyzer.extractTrafficCountFromFile();
+        trafficAnalyzer.printSummary();
+    }
 
-        String s = "2016-12-01T05:00:00";
-        LocalDateTime dateTime = LocalDateTime.parse(s);
-
-        System.out.println(dateTime.toLocalDate());
-
-
+    @Test
+    public void demo() {
+        var stack = new Stack<Integer>();
+        stack.add(1);
+        stack.add(2);
+        var r = stack.peek();
+        System.out.println(r);
 
     }
+
 
 }
