@@ -44,7 +44,12 @@ public class TrafficAnalyzer {
     }
 
     public void extractTrafficCountFromFile(String fileName) throws IOException {
-        for (var line : readFileAsString(fileName).split("\n")) {
+        String text = readFileAsString(fileName);
+        if (text.isBlank()) {
+            throw new IllegalArgumentException(String.format("File %s is blank, can not process!", fileName));
+        }
+
+        for (var line : text.split("\n")) {
             var dateTime = LocalDateTime.parse(line.split(" ")[0]);
             var count = Integer.parseInt(line.split(" ")[1]);
 
@@ -53,6 +58,35 @@ public class TrafficAnalyzer {
             totalCount += count;
             processOneAndHalfHourTrafficCount(dateTime, count);
         }
+    }
+
+    public Integer getTotalCount() {
+        return totalCount;
+    }
+
+    public List<String> dailyTrafficCount() {
+        return dayCountMap.entrySet()
+                .stream()
+                .map(this::entryToString)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> top3HalfHours() {
+        return halfHourCountMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .map(this::entryToString)
+                .limit(3)
+                .collect(Collectors.toList());
+    }
+
+    public List<String> oneAndHalfHourWithLeastCars() {
+        return oneAndHalfHourCountMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue())
+                .limit(1)
+                .map(this::entryToString)
+                .collect(Collectors.toList());
     }
 
     private void processOneAndHalfHourTrafficCount(LocalDateTime dateTime, int count) {
@@ -78,33 +112,13 @@ public class TrafficAnalyzer {
         }
     }
 
-    private List<String> oneAndHalfHourWithLeastCars() {
-        return oneAndHalfHourCountMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue())
-                .limit(1)
-                .map(this::entryToString)
-                .collect(Collectors.toList());
-    }
-
-    public List<String> top3HalfHours() {
-        return halfHourCountMap.entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .map(this::entryToString)
-                .limit(3)
-                .collect(Collectors.toList());
-    }
-
-    public List<String> dailyTrafficCount() {
-        return dayCountMap.entrySet()
-                .stream()
-                .map(this::entryToString)
-                .collect(Collectors.toList());
-    }
 
     private String readFileAsString(String fileName) throws IOException {
         var inputStream = getClass().getClassLoader().getResourceAsStream(fileName);
+        if (inputStream == null) {
+            throw new IOException(String.format("Not able to open file: %s", fileName));
+        }
+
         return IOUtils.toString(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8.name());
     }
 
