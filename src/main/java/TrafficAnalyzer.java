@@ -98,13 +98,13 @@ public class TrafficAnalyzer {
             if (isNext30Minutes(last, dateTime)) {
                 window.add(dateTime);
                 counter += count;
-                // first time window size grow to 3
+                // first time window size grow to 3, save the count and update the window
                 if (window.size() == 3) {
                     oneAndHalfHourCountMap.put(window.peekFirst(), counter);
                     var first = window.pollFirst();
                     counter -= halfHourCountMap.get(first);
                 }
-            } else { // next block non adjacent
+            } else { // not half hour adjacent time slot, start over from this time stamp
                 window.clear();
                 window.add(dateTime);
                 counter = count;
